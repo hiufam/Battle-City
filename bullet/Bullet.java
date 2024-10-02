@@ -43,6 +43,10 @@ public class Bullet extends GameComponent {
 
   @Override
   public void update(double deltaTime) {
+    if (hidden) {
+      return;
+    }
+
     ArrayList<GameComponent> collidedGameComponents = checkCollision(
         GameComponentsManager.getBulletCollisionComponents(), deltaTime);
 

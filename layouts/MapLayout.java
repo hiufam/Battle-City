@@ -33,11 +33,14 @@ public class MapLayout {
               case "@":
                 row.add(2);
                 break;
+              case "~":
+                row.add(4);
+                break;
               case "%":
                 row.add(5);
                 break;
-              case "~":
-                row.add(4);
+              case "P":
+                row.add(6);
                 break;
               default:
                 row.add(0);

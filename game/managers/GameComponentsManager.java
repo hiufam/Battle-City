@@ -40,6 +40,13 @@ public class GameComponentsManager {
     return gameComponents;
   }
 
+  public static GameComponent[] getGameComponent(GameComponentType type) {
+    return gameComponents
+        .stream()
+        .filter(gameComponent -> gameComponent.getType().equals(type))
+        .toArray(GameComponent[]::new);
+  }
+
   public static void setPlayerCollisionComponents(GameComponentType[] gameComponentTypes) {
     for (GameComponentType gameComponentType : gameComponentTypes) {
       for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {

@@ -18,7 +18,7 @@ import player.Player;
 public class GameManager extends GameLoop {
   GameScreen gameScreen;
   GameKeyManager gameKeyListener;
-  GameComponentsManager gameComponentsManager;
+  Player player;
 
   ArrayList<GameComponent> playerCollisionComponents = new ArrayList<>();
   ArrayList<GameComponent> bulletCollisionComponents = new ArrayList<>();
@@ -27,11 +27,7 @@ public class GameManager extends GameLoop {
   public GameManager() {
     gameScreen = new GameScreen();
     gameKeyListener = new GameKeyManager();
-    gameComponentsManager = new GameComponentsManager();
   }
-
-  Player player = new Player(new Vector2D(GameScreen.WINDOW_WIDTH / 2, GameScreen.WINDOW_HEIGHT / 2), 32, 32,
-      Color.WHITE);
 
   public void startGame() {
     GameScreen.createWindow(gameScreen, gameKeyListener);
@@ -49,6 +45,9 @@ public class GameManager extends GameLoop {
         GameComponentType.BRICK,
         GameComponentType.STEEL,
     });
+
+    player = new Player(
+        GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER)[0].getPosition(), 32, 32, Color.WHITE);
 
     run();
   }
