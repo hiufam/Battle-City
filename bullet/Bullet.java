@@ -47,12 +47,12 @@ public class Bullet extends GameComponent {
       return;
     }
 
-    ArrayList<GameComponent> collidedGameComponents = checkCollision(
-        GameComponentsManager.getBulletCollisionComponents(), deltaTime);
-
     if (CollisionUtil.isOutOfBound(this)) {
       destroy();
     }
+
+    ArrayList<GameComponent> collidedGameComponents = checkCollision(
+        GameComponentsManager.getBulletCollisionComponents(), deltaTime);
 
     if (collidedGameComponents == null) {
       move(deltaTime);

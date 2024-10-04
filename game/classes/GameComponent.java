@@ -56,7 +56,7 @@ public abstract class GameComponent extends Component {
     this.x = (int) position.x;
     this.y = (int) position.y;
 
-    setCenter(new Vector2D(x + width / 2, y + height / 2));
+    setCenter(new Vector2D(position.x + width / 2, position.y + height / 2));
 
     if (collisionBox != null) {
       collisionBox.setPosition(position);
@@ -99,20 +99,22 @@ public abstract class GameComponent extends Component {
     return type;
   }
 
-  public ArrayList<GameComponent> checkCollision(ArrayList<GameComponent> gameComponents,
-      double deltaTime) {
+  public ArrayList<GameComponent> checkCollision(ArrayList<GameComponent> gameComponents, double deltaTime) {
     if (!getCollision().enabled) {
       return null;
     }
+    CollisionUtil.checkEdgeCollision(this);
 
     ArrayList<GameComponent> collidedGameComponents = new ArrayList<>();
 
     for (GameComponent gameComponent : gameComponents) {
-      if (gameComponent.getCollision() == null || !gameComponent.getCollision().enabled) {
+      if (gameComponent.getCollision() == null ||
+          !gameComponent.getCollision().enabled) {
         continue;
       }
 
-      boolean hasCollision = CollisionUtil.checkAABBCollision(this, gameComponent, deltaTime);
+      boolean hasCollision = CollisionUtil.checkAABBCollision(this, gameComponent,
+          deltaTime);
       if (hasCollision) {
         collidedGameComponents.add(gameComponent);
       }

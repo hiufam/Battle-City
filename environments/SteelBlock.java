@@ -13,7 +13,7 @@ public class SteelBlock extends GameComponent {
   public SteelBlock(Vector2D position, int width, int height) {
     super(GameComponentType.STEEL, position, width, height);
 
-    collisionBox = new CollisionBox(this, new Vector2D(0, 0), width, height);
+    // collisionBox = new CollisionBox(this, new Vector2D(0, 0), width, height);
     sprite = new GameSprite("images\\wall_steel.png");
   }
 

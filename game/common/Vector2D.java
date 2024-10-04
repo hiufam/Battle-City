@@ -47,6 +47,10 @@ public class Vector2D {
     return this.x == 0 && this.y == 0;
   }
 
+  public boolean isNaN() {
+    return Double.isNaN(x) || Double.isNaN(y);
+  }
+
   public boolean isEqual(Vector2D vector) {
     return this.x == vector.x && this.y == vector.y;
   }

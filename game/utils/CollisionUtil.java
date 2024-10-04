@@ -80,13 +80,15 @@ public class CollisionUtil {
     return tileIsSolid;
   }
 
-  public static boolean checkAABBCollision(GameComponent gameComponentA, GameComponent gameComponentB,
-      double deltaTime) {
-
+  public static void checkEdgeCollision(GameComponent gameComponentA) {
     if (isOutOfBound(gameComponentA)) {
       Vector2D boundOffset = getOutOfBoundOffset(gameComponentA);
-      gameComponentA.setPosition(gameComponentA.getPosition().add(boundOffset.multiply(deltaTime)));
+      gameComponentA.setPosition(gameComponentA.getPosition().add(boundOffset));
     }
+  }
+
+  public static boolean checkAABBCollision(GameComponent gameComponentA, GameComponent gameComponentB,
+      double deltaTime) {
 
     if (gameComponentB.getCollision() == null) {
       return false;
@@ -104,6 +106,13 @@ public class CollisionUtil {
 
       double offsetX = MinkowskiDiff.center.x / MinkowskiDiff.size.x;
       double offsetY = MinkowskiDiff.center.y / MinkowskiDiff.size.y;
+
+      // Stop the game component from SLIDING
+      if (!gameComponentA.getVelocity().isNaN()) {
+        Vector2D direction = gameComponentA.getVelocity().normalized();
+        offsetX *= Math.abs(direction.x);
+        offsetY *= Math.abs(direction.y);
+      }
 
       Vector2D offset = new Vector2D(offsetX, offsetY);
 
