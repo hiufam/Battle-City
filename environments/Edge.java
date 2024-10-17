@@ -16,6 +16,6 @@ public class Edge extends GameComponent {
   }
 
   public void draw(Graphics2D graphics2d) {
-    graphics2d.drawImage(sprite.getBufferedImage(), x, y, this);
+    graphics2d.drawImage(sprite.getBufferedImage(), (int) x, (int) y, this);
   }
 }

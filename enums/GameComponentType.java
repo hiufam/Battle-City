@@ -10,7 +10,8 @@ public enum GameComponentType {
   BOX(7),
   PLAYER(8),
   BULLET(9),
-  PLAYER_SPAWNER(10);
+  PLAYER_SPAWNER(10),
+  ENEMY(11);
 
   // BLANK(0), BRICK(1), STEEL(2), BASE(3), RIVER(4), TREE(5), EDGE(6);
 

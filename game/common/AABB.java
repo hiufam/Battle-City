@@ -22,6 +22,11 @@ public class AABB {
     return new Vector2D(extents.x * 2, extents.y * 2);
   }
 
+  public String toString() {
+    return "AABB(x=" + min.x + ", y=" + min.y + ", width=" + size.x + ", height=" + size.y + ", min=" + min + ", max="
+        + max + ")";
+  }
+
   public AABB(Vector2D center, Vector2D extents) {
     this.center = center;
     this.extents = extents;
@@ -37,7 +42,13 @@ public class AABB {
 
     this.min = getMin();
     this.max = getMax();
-    this.size = getSize();
+    this.size = new Vector2D(collisionBox.width, collisionBox.height);
+  }
+
+  public void setCenter(Vector2D position) {
+    this.center = position;
+    this.min = getMin();
+    this.max = getMax();
   }
 
   public AABB minkowskiDifference(AABB other) {
@@ -51,7 +62,7 @@ public class AABB {
     Vector2D r = endA.minus(originA);
     Vector2D s = endB.minus(originB);
 
-    Double numerator = originB.minus(originA).crossProduct(r);
+    Double numerator = (originB.minus(originA)).crossProduct(r);
     Double denominator = r.crossProduct(s);
 
     if (numerator == 0 && denominator == 0) {
@@ -85,5 +96,23 @@ public class AABB {
     if (x < minT)
       minT = x;
     return minT;
+  }
+
+  public Vector2D getOverlappingDirection(AABB other, double offsetX, double offsetY) {
+    Vector2D direction = this.center.minus(other.center).normalized();
+    double newOffsetX = offsetX;
+    double newOffsetY = offsetY;
+
+    if (offsetX > offsetY) {
+      newOffsetX = 0;
+      newOffsetY += 0.1;
+    }
+
+    if (offsetY > offsetX) {
+      newOffsetX += 0.1;
+      newOffsetY = 0;
+    }
+
+    return new Vector2D(direction.x * newOffsetX, direction.y * newOffsetY);
   }
 }

@@ -11,15 +11,15 @@ import managers.GameComponentsManager;
 import utils.CollisionUtil;
 
 public abstract class GameComponent extends Component {
-  public int x;
-  public int y;
+  public double x;
+  public double y;
   public int width;
   public int height;
 
-  private GameComponentType type;
-  private Vector2D velocity;
-  private Vector2D center;
-  private Vector2D position;
+  protected GameComponentType type;
+  protected Vector2D velocity;
+  protected Vector2D center;
+  protected Vector2D position;
 
   protected CollisionBox collisionBox;
   protected GameSprite sprite;
@@ -41,6 +41,9 @@ public abstract class GameComponent extends Component {
   public void draw(Graphics2D graphics2d) {
   };
 
+  public void draw(Graphics2D graphics2d, double deltaTime) {
+  };
+
   public void update(double deltaTime) {
   };
 
@@ -53,8 +56,8 @@ public abstract class GameComponent extends Component {
 
   public void setPosition(Vector2D position) {
     this.position = position;
-    this.x = (int) position.x;
-    this.y = (int) position.y;
+    this.x = position.x;
+    this.y = position.y;
 
     setCenter(new Vector2D(position.x + width / 2, position.y + height / 2));
 
@@ -99,6 +102,11 @@ public abstract class GameComponent extends Component {
     return type;
   }
 
+  public String toString() {
+    return "GameComponent(type=" + type + ", Position=" + getPosition() + ", width=" + width + ", height=" + height
+        + ")";
+  }
+
   public ArrayList<GameComponent> checkCollision(ArrayList<GameComponent> gameComponents, double deltaTime) {
     if (!getCollision().enabled) {
       return null;
@@ -109,12 +117,13 @@ public abstract class GameComponent extends Component {
 
     for (GameComponent gameComponent : gameComponents) {
       if (gameComponent.getCollision() == null ||
-          !gameComponent.getCollision().enabled) {
+          !gameComponent.getCollision().enabled ||
+          gameComponent == this) {
         continue;
       }
 
-      boolean hasCollision = CollisionUtil.checkAABBCollision(this, gameComponent,
-          deltaTime);
+      boolean hasCollision = CollisionUtil.checkAABBCollision(this, gameComponent, deltaTime);
+
       if (hasCollision) {
         collidedGameComponents.add(gameComponent);
       }

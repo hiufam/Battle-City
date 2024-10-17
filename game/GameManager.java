@@ -3,8 +3,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import common.Vector2D;
+import enemy.Enemy;
 import enums.GameComponentType;
-
+import environments.BrickWall;
+import environments.SteelBlock;
 import layouts.MapLayout;
 import layouts.ScreenLayout;
 import managers.GameComponentsManager;
@@ -32,23 +34,38 @@ public class GameManager extends GameLoop {
   public void startGame() {
     GameScreen.createWindow(gameScreen, gameKeyListener);
     GameScreen.createGameLayout(ScreenLayout.getInstance(), MapLayout.generateLevel());
-    GameScreen.setGameComponents(GameComponentsManager.getGameComponents());
+
+    // Need to instantiate first xD
+    // BrickWall brickWall = new BrickWall(new Vector2D(32, 16), 32, 32);
+    // SteelBlock steelBlock = new SteelBlock(new Vector2D(32, 16), 16, 16);
+
+    new Enemy(new Vector2D(32, 16), 32, 32, Color.RED);
+    new Enemy(new Vector2D(32 * 10, 16), 32, 32, Color.RED);
+    player = new Player(GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER)[0].getPosition(), 32,
+        32);
 
     // TODO: A little crude might change later not generic enough
     GameComponentsManager.setPlayerCollisionComponents(new GameComponentType[] {
         GameComponentType.BOX,
         GameComponentType.BRICK,
         GameComponentType.STEEL,
+        GameComponentType.ENEMY,
     });
     GameComponentsManager.setBulletCollisionComponents(new GameComponentType[] {
         GameComponentType.BOX,
         GameComponentType.BRICK,
         GameComponentType.STEEL,
+        GameComponentType.ENEMY,
+    });
+    GameComponentsManager.setEnemyCollisionComponents(new GameComponentType[] {
+        GameComponentType.BOX,
+        GameComponentType.BRICK,
+        GameComponentType.STEEL,
+        GameComponentType.PLAYER,
+        GameComponentType.ENEMY,
     });
 
-    player = new Player(
-        GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER)[0].getPosition(), 32, 32, Color.WHITE);
-
+    GameScreen.setGameComponents(GameComponentsManager.getGameComponents());
     run();
   }
 
@@ -107,6 +124,6 @@ public class GameManager extends GameLoop {
       player.setDirection(new Vector2D(0, 0));
     }
 
-    MovementUtil.tileMapPositionAssist(player, tileMap);
+    MovementUtil.tileMapPositionAssist(player);
   }
 }

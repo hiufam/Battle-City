@@ -1,7 +1,9 @@
-package player;
+package enemy;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.Random;
+import java.util.random.RandomGenerator;
 
 import bullet.Bullet;
 import classes.GameComponent;
@@ -10,14 +12,20 @@ import common.Vector2D;
 import components.CollisionBox;
 import enums.GameComponentType;
 import managers.GameComponentsManager;
+import utils.DrawUtils;
+import utils.MovementUtil;
 
-public class Player extends GameComponent {
-  private Vector2D direction = new Vector2D(0, 0);
+public class Enemy extends GameComponent {
+  private Vector2D direction = new Vector2D(1, 0);
   private Vector2D prevDirection = new Vector2D(0, 0);
+  private Color color;
   private Bullet bullet;
   private double speed = 180;
   private double attackInterval = 0.25;
   private double attackIntervalTimer = 0;
+
+  private double randomDirectionInterval = 1.5;
+  private double randomDirectionTimer = 0;
 
   // NEED IMMEDIATE FIX
   private int frameIndex = 0;
@@ -38,14 +46,13 @@ public class Player extends GameComponent {
   GameSprite moveLeftFrame2 = new GameSprite("images\\tank_player1_left_c0_t2.png");
   GameSprite[] moveLeftFrames = { moveLeftFrame1, moveLeftFrame2 };
 
-  public Player(Vector2D position, int width, int height) {
-    super(GameComponentType.PLAYER, position, width, height);
+  public Enemy(Vector2D position, int width, int height, Color color) {
+    super(GameComponentType.ENEMY, position, width, height);
 
+    this.color = color;
     this.bullet = new Bullet(getCenter(), 0, 0, Color.RED, this);
 
-    setSprite(moveUpFrame1);
-    setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2)); // TO PRECISE THEREFORE SET IT TO
-                                                                                     // SMALLER
+    setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2));
   }
 
   public void draw(Graphics2D graphics2d) {
@@ -54,9 +61,7 @@ public class Player extends GameComponent {
 
   @Override
   public void update(double deltaTime) {
-    if (checkCollision(GameComponentsManager.getPlayerCollisionComponents(), deltaTime) == null) {
-      move(deltaTime);
-    }
+    randomDirection();
 
     if (frameIndex > 1) {
       frameIndex = 0;
@@ -69,15 +74,23 @@ public class Player extends GameComponent {
       animationTimer += deltaTime;
     }
 
-    attackIntervalTimer += deltaTime;
+    if (checkCollision(GameComponentsManager.getEnemyCollisionComponents(), deltaTime) == null) {
+      move(deltaTime);
+      MovementUtil.tileMapPositionAssist(this);
+    }
+
+    if (!direction.isEqual(prevDirection)) {
+    }
+
+    randomDirectionTimer += deltaTime;
   }
 
   public void move(double deltaTime) {
     setVelocity(direction.multiply(speed));
     setPosition(getPosition().add(getVelocity().multiply(deltaTime)));
 
-    if (!getDirection().isZero()) {
-      prevDirection = getDirection();
+    if (!prevDirection.isEqual(direction)) {
+      prevDirection = direction;
     }
 
     if (frameIndex < 2 && !velocity.isZero()) {
@@ -136,6 +149,35 @@ public class Player extends GameComponent {
 
   public Vector2D getPrevDirection() {
     return this.prevDirection;
+  }
+
+  private void randomDirection() {
+    if (randomDirectionTimer < randomDirectionInterval) {
+      return;
+    }
+    int minValue = 0;
+    int maxValue = 3;
+    Random random = new Random();
+    int randomInt = minValue + random.nextInt(maxValue - minValue + 1);
+
+    switch (randomInt) {
+      case 0:
+        direction = new Vector2D(0, 1);
+        break;
+      case 1:
+        direction = new Vector2D(0, -1);
+        break;
+      case 2:
+        direction = new Vector2D(1, 0);
+        break;
+      case 3:
+        direction = new Vector2D(-1, 0);
+        break;
+      default:
+        direction = new Vector2D(0, 0);
+        break;
+    }
+    randomDirectionTimer = 0;
   }
 
   private void createBullet(Vector2D direction) {

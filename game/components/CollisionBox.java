@@ -5,7 +5,11 @@ import java.awt.Rectangle;
 import common.Vector2D;
 import classes.GameComponent;
 
-public class CollisionBox extends Rectangle {
+public class CollisionBox {
+  public double x;
+  public double y;
+  public int width;
+  public int height;
   public Vector2D center;
   public Vector2D extents;
   public Vector2D relativePosition; // relative to game component position
@@ -14,8 +18,11 @@ public class CollisionBox extends Rectangle {
   public boolean enabled = true;
 
   public CollisionBox(GameComponent gameComponent, Vector2D relativePosition, int width, int height) {
-    super((int) relativePosition.add(gameComponent.getPosition()).x,
-        (int) relativePosition.add(gameComponent.getPosition()).y, width, height);
+    x = relativePosition.add(gameComponent.getPosition()).x;
+    y = relativePosition.add(gameComponent.getPosition()).y;
+
+    this.width = width;
+    this.height = height;
 
     this.center = new Vector2D(x + width / 2, y + height / 2);
     this.extents = new Vector2D(width / 2, height / 2);
@@ -24,10 +31,18 @@ public class CollisionBox extends Rectangle {
     this.gameComponent = gameComponent;
   }
 
+  public Vector2D getCenter() {
+    return this.center;
+  }
+
   public void setPosition(Vector2D gameComponentPosition) {
     globalPosition = gameComponentPosition.add(relativePosition);
+    this.x = globalPosition.x;
+    this.y = globalPosition.y;
+    this.center = new Vector2D(x + (double) width / 2, y + (double) height / 2);
+  }
 
-    this.center = new Vector2D(globalPosition.x + width / 2, globalPosition.y + height / 2);
-    super.setLocation((int) globalPosition.x, (int) globalPosition.y);
+  public String toString() {
+    return "CollisionBox(x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + ")";
   }
 }

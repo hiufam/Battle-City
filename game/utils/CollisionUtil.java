@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import common.AABB;
 import common.Vector2D;
 import components.CollisionBox;
+import enums.GameComponentType;
 import managers.GameScreen;
 import classes.GameComponent;
 
@@ -54,6 +55,11 @@ public class CollisionUtil {
     return Vector2D.zero();
   }
 
+  public static Vector2D getCollisionOffset(GameComponent gameComponentA, GameComponent gameComponentB) {
+
+    return null;
+  }
+
   public static boolean isOutOfBound(GameComponent gameComponent) {
     return !getOutOfBoundOffset(gameComponent).isEqual(Vector2D.zero());
   }
@@ -87,7 +93,9 @@ public class CollisionUtil {
     }
   }
 
-  public static boolean checkAABBCollision(GameComponent gameComponentA, GameComponent gameComponentB,
+  public static boolean checkAABBCollision(
+      GameComponent gameComponentA,
+      GameComponent gameComponentB,
       double deltaTime) {
 
     if (gameComponentB.getCollision() == null) {
@@ -96,27 +104,77 @@ public class CollisionUtil {
 
     AABB collBoxA_AABB = new AABB(gameComponentA.getCollision());
     AABB collBoxB_AABB = new AABB(gameComponentB.getCollision());
-
-    AABB MinkowskiDiff = collBoxA_AABB.minkowskiDifference(collBoxB_AABB);
+    AABB MinkowskiDiff = collBoxB_AABB.minkowskiDifference(collBoxA_AABB);
 
     if (MinkowskiDiff.min.x <= 0 &&
         MinkowskiDiff.max.x >= 0 &&
         MinkowskiDiff.min.y <= 0 &&
         MinkowskiDiff.max.y >= 0) {
 
-      double offsetX = MinkowskiDiff.center.x / MinkowskiDiff.size.x;
-      double offsetY = MinkowskiDiff.center.y / MinkowskiDiff.size.y;
+      // Lazy calculation of offset
+      double offsetX = Math.min(Math.abs(MinkowskiDiff.min.x), Math.abs(MinkowskiDiff.max.x));
+      double offsetY = Math.min(Math.abs(MinkowskiDiff.min.y), Math.abs(MinkowskiDiff.max.y));
 
-      // Stop the game component from SLIDING
-      if (!gameComponentA.getVelocity().isNaN()) {
-        Vector2D direction = gameComponentA.getVelocity().normalized();
-        offsetX *= Math.abs(direction.x);
-        offsetY *= Math.abs(direction.y);
+      if (!gameComponentA.getVelocity().isZero()) { // For rigid body (1 component has velocity)
+        boolean hasCollision = false;
+
+        // TODO: Fix this ASAP, need a case for no need to check front
+        if (gameComponentA.getType() == GameComponentType.BULLET) {
+          return true;
+        }
+
+        for (Vector2D collisionPoint : forwardCollisionPoints(gameComponentA,
+            deltaTime)) {
+          if (collBoxB_AABB.getRayIntersectionFraction(collisionPoint,
+              gameComponentA.getVelocity()) < Double.POSITIVE_INFINITY) {
+            hasCollision = true;
+          }
+        }
+
+        if (hasCollision) {
+          Vector2D offset = gameComponentA.getVelocity().normalized().multiply(-1);
+          gameComponentA.setPosition(gameComponentA.getPosition().add(offset));
+          gameComponentA.setVelocity(new Vector2D(0, 0));
+        }
+      } else { // For static body (2 components have zero velocity)
+        Vector2D totalOffset = collBoxB_AABB.getOverlappingDirection(collBoxA_AABB,
+            offsetX, offsetY);
+
+        gameComponentB.setPosition(
+            gameComponentB.getPosition().add(totalOffset));
+
+        /*
+         * Note: In some rare case, the offset will be messed up*
+         */
       }
 
-      Vector2D offset = new Vector2D(offsetX, offsetY);
+      if (!gameComponentB.getVelocity().isZero()) {
+        boolean hasCollision = false;
 
-      gameComponentA.setPosition(gameComponentA.getPosition().add(offset.multiply(deltaTime)));
+        if (gameComponentB.getType() == GameComponentType.BULLET) {
+          return true;
+        }
+
+        for (Vector2D collisionPoint : forwardCollisionPoints(gameComponentB,
+            deltaTime)) {
+          if (collBoxA_AABB.getRayIntersectionFraction(collisionPoint,
+              gameComponentB.getVelocity()) < Double.POSITIVE_INFINITY) {
+            hasCollision = true;
+          }
+        }
+
+        if (hasCollision) {
+          Vector2D offset = gameComponentB.getVelocity().normalized().multiply(-1);
+          gameComponentB.setPosition(gameComponentB.getPosition().add(offset));
+          gameComponentB.setVelocity(new Vector2D(0, 0));
+        }
+      } else {
+        Vector2D totalOffset = collBoxA_AABB.getOverlappingDirection(collBoxB_AABB,
+            offsetX, offsetY);
+
+        gameComponentA.setPosition(
+            gameComponentA.getPosition().add(totalOffset));
+      }
 
       return true;
     } else {
@@ -125,53 +183,58 @@ public class CollisionUtil {
       Double h = MinkowskiDiff.getRayIntersectionFraction(Vector2D.zero(), relativeMotion);
 
       if (h < Double.POSITIVE_INFINITY) {
-        collBoxA_AABB.center = collBoxA_AABB.center.add(gameComponentA.getVelocity()).multiply(deltaTime).multiply(h);
-        collBoxB_AABB.center = collBoxB_AABB.center.add(gameComponentB.getVelocity()).multiply(deltaTime).multiply(h);
+        Vector2D offsetA = gameComponentA.getVelocity().multiply(deltaTime).multiply(h);
+        Vector2D offsetB = gameComponentB.getVelocity().multiply(deltaTime).multiply(h);
+        gameComponentA.setPosition(gameComponentA.getPosition().add(offsetA));
+        gameComponentB.setPosition(gameComponentB.getPosition().add(offsetB));
 
-        Vector2D tangent = relativeMotion.normalized().getTangent();
-        gameComponentA.setVelocity(tangent.multiply(Vector2D.dotProduct(gameComponentA.getVelocity(), tangent)));
-        gameComponentB.setVelocity(tangent.multiply(Vector2D.dotProduct(gameComponentB.getVelocity(), tangent)));
-      } else {
-        return false;
+        return true;
       }
+      return false;
     }
-    return false;
   }
 
-  public static ArrayList<Vector2D> checkTileMapCollision(GameComponent gameComponent, GameComponent[] tileMap,
-      double deltaTime) {
+  public static ArrayList<Vector2D> forwardCollisionPoints(GameComponent gameComponent, double deltaTime) {
+    final int collisionPointsCount = 5;
     ArrayList<Vector2D> collisionPoints = new ArrayList<>();
-
     CollisionBox collisionBox = gameComponent.getCollision();
 
     if (collisionBox == null) {
-
+      return new ArrayList<>();
     }
 
     Vector2D direction = gameComponent.getVelocity().normalized();
     Vector2D startingPoint = collisionBox.globalPosition;
 
     if (direction.x != 0 && !Double.isNaN(direction.x)) { // Moving horizontally
-      Vector2D startingPointH = startingPoint.add(new Vector2D(collisionBox.width / 2, 0).multiply(direction.x + 1));
+      Vector2D startingPointH = startingPoint;
+
+      if (direction.x > 0) {
+        startingPointH = startingPointH.add(new Vector2D(collisionBox.width, 0));
+      }
 
       collisionPoints.add(startingPointH);
-
-      for (int i = 1; i <= 4; i++) {
-        collisionPoints.add(startingPointH.add(new Vector2D(0, 8 * i)));
+      for (int i = 1; i < collisionPointsCount; i++) {
+        collisionPoints
+            .add(startingPointH.add(new Vector2D(0, ((double) collisionBox.height / (collisionPointsCount - 1)) * i)));
       }
     }
-    if (direction.y != 0 && !Double.isNaN(direction.y)) { // Moving vertically
 
-      Vector2D startingPointV = startingPoint.add(new Vector2D(0, collisionBox.height / 2).multiply(direction.y + 1));
+    if (direction.y != 0 && !Double.isNaN(direction.y)) { // Moving vertically
+      Vector2D startingPointV = startingPoint;
+
+      if (direction.y > 0) {
+        startingPointV = startingPointV.add(new Vector2D(0, collisionBox.height));
+      }
 
       collisionPoints.add(startingPointV);
 
-      for (int i = 1; i <= 4; i++) {
-        collisionPoints.add(startingPointV.add(new Vector2D(8 * i, 0)));
+      for (int i = 1; i < collisionPointsCount; i++) {
+        collisionPoints
+            .add(startingPointV.add(new Vector2D(((double) collisionBox.width / (collisionPointsCount - 1)) * i, 0)));
       }
     }
 
-    gameComponent.update(deltaTime);
     return collisionPoints;
   }
 }

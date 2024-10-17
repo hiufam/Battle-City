@@ -28,7 +28,7 @@ public class BrickBlock extends GameComponent implements DestructibleComponent {
   @Override
   public void draw(Graphics2D graphics2d) {
     if (health > 1) {
-      graphics2d.drawImage(sprite.getBufferedImage(), x, y, this);
+      graphics2d.drawImage(sprite.getBufferedImage(), (int) x, (int) y, this);
     } else {
       drawDamagedBrick(graphics2d);
     }
@@ -64,7 +64,7 @@ public class BrickBlock extends GameComponent implements DestructibleComponent {
   private void drawDamagedBrick(Graphics2D graphics2d) {
     if (maskImage != null) {
       sprite.applyGrayscaleMaskToAlpha(maskImage);
-      graphics2d.drawImage(sprite.getBufferedImage(), x, y, this);
+      graphics2d.drawImage(sprite.getBufferedImage(), (int) x, (int) y, this);
       return;
     }
 

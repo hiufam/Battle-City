@@ -10,6 +10,7 @@ public class GameComponentsManager {
   private static ArrayList<GameComponent> gameComponents = new ArrayList<>();
   private static ArrayList<GameComponent> playerCollisionComponents = new ArrayList<>();
   private static ArrayList<GameComponent> bulletCollisionComponents = new ArrayList<>();
+  private static ArrayList<GameComponent> enemyCollisionComponents = new ArrayList<>();
 
   public void GameComponent() {
   }
@@ -73,5 +74,19 @@ public class GameComponentsManager {
 
   public static ArrayList<GameComponent> getBulletCollisionComponents() {
     return bulletCollisionComponents;
+  }
+
+  public static void setEnemyCollisionComponents(GameComponentType[] gameComponentTypes) {
+    for (GameComponentType gameComponentType : gameComponentTypes) {
+      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
+        if (gameComponent.getType() == gameComponentType) {
+          enemyCollisionComponents.add(gameComponent);
+        }
+      }
+    }
+  }
+
+  public static ArrayList<GameComponent> getEnemyCollisionComponents() {
+    return enemyCollisionComponents;
   }
 }
