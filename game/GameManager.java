@@ -35,35 +35,44 @@ public class GameManager extends GameLoop {
     GameScreen.createWindow(gameScreen, gameKeyListener);
     GameScreen.createGameLayout(ScreenLayout.getInstance(), MapLayout.generateLevel());
 
-    // Need to instantiate first xD
-    // BrickWall brickWall = new BrickWall(new Vector2D(32, 16), 32, 32);
-    // SteelBlock steelBlock = new SteelBlock(new Vector2D(32, 16), 16, 16);
+    new Enemy(new Vector2D(32, 16));
+    new Enemy(new Vector2D(32 * 2, 16));
+    new Enemy(new Vector2D(32 * 3, 16));
+    new Enemy(new Vector2D(32 * 4, 16));
+    new Enemy(new Vector2D(32 * 5, 16));
+    new Enemy(new Vector2D(32 * 6, 16));
+    new Enemy(new Vector2D(32 * 7, 16));
+    new Enemy(new Vector2D(32 * 8, 16));
+    new Enemy(new Vector2D(32 * 9, 16));
+    new Enemy(new Vector2D(32 * 10, 16));
+    player = new Player(GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER).get(0).getPosition());
 
-    new Enemy(new Vector2D(32, 16), 32, 32, Color.RED);
-    new Enemy(new Vector2D(32 * 10, 16), 32, 32, Color.RED);
-    player = new Player(GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER)[0].getPosition(), 32,
-        32);
+    GameComponentsManager.setCollisionComponents(GameComponentType.PLAYER,
+        new GameComponentType[] {
+            GameComponentType.BOX,
+            GameComponentType.BRICK,
+            GameComponentType.STEEL,
+            GameComponentType.ENEMY,
+        });
 
-    // TODO: A little crude might change later not generic enough
-    GameComponentsManager.setPlayerCollisionComponents(new GameComponentType[] {
-        GameComponentType.BOX,
-        GameComponentType.BRICK,
-        GameComponentType.STEEL,
-        GameComponentType.ENEMY,
-    });
-    GameComponentsManager.setBulletCollisionComponents(new GameComponentType[] {
-        GameComponentType.BOX,
-        GameComponentType.BRICK,
-        GameComponentType.STEEL,
-        GameComponentType.ENEMY,
-    });
-    GameComponentsManager.setEnemyCollisionComponents(new GameComponentType[] {
-        GameComponentType.BOX,
-        GameComponentType.BRICK,
-        GameComponentType.STEEL,
-        GameComponentType.PLAYER,
-        GameComponentType.ENEMY,
-    });
+    GameComponentsManager.setCollisionComponents(GameComponentType.BULLET,
+        new GameComponentType[] {
+            GameComponentType.BOX,
+            GameComponentType.BRICK,
+            GameComponentType.STEEL,
+            GameComponentType.PLAYER_SPAWNER,
+            GameComponentType.BULLET,
+            GameComponentType.PLAYER,
+            GameComponentType.ENEMY,
+        });
+
+    GameComponentsManager.setCollisionComponents(GameComponentType.ENEMY,
+        new GameComponentType[] {
+            GameComponentType.BOX,
+            GameComponentType.BRICK,
+            GameComponentType.STEEL,
+            GameComponentType.PLAYER,
+        });
 
     GameScreen.setGameComponents(GameComponentsManager.getGameComponents());
     run();

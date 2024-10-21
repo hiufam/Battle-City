@@ -3,6 +3,7 @@ package classes;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import common.Vector2D;
 import components.CollisionBox;
@@ -25,8 +26,8 @@ public abstract class GameComponent extends Component {
   protected GameSprite sprite;
 
   public GameComponent(GameComponentType type, Vector2D position, int width, int height) {
-    this.x = (int) position.x;
-    this.y = (int) position.y;
+    this.x = position.x;
+    this.y = position.y;
     this.width = width;
     this.height = height;
 
@@ -107,8 +108,31 @@ public abstract class GameComponent extends Component {
         + ")";
   }
 
-  public ArrayList<GameComponent> checkCollision(ArrayList<GameComponent> gameComponents, double deltaTime) {
-    if (!getCollision().enabled) {
+  public boolean equals(GameComponent gameComponent) {
+    if (gameComponent == this) {
+      return true;
+    }
+
+    if (!(gameComponent instanceof GameComponent)) {
+      return false;
+    }
+
+    return this.getType() == gameComponent.getType();
+  }
+
+  /**
+   * Check collision of this GameComponent
+   * 
+   * @param gameComponents
+   * @param ignoreGameComponentType - What type of GameComponent will this ignore
+   * @param deltaTime
+   * @return
+   */
+  public ArrayList<GameComponent> checkCollision(
+      ArrayList<GameComponent> gameComponents,
+      GameComponentType[] ignoreGameComponentType,
+      double deltaTime) {
+    if (!getCollision().isEnabled()) {
       return null;
     }
     CollisionUtil.checkEdgeCollision(this);
@@ -117,8 +141,12 @@ public abstract class GameComponent extends Component {
 
     for (GameComponent gameComponent : gameComponents) {
       if (gameComponent.getCollision() == null ||
-          !gameComponent.getCollision().enabled ||
+          !gameComponent.getCollision().isEnabled() ||
           gameComponent == this) {
+        continue;
+      }
+
+      if (ignoreGameComponentType != null && Arrays.asList(ignoreGameComponentType).contains(gameComponent.getType())) {
         continue;
       }
 

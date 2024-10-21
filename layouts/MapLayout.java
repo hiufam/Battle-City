@@ -60,7 +60,9 @@ public class MapLayout {
   public static int[][] generateLevel() {
     int[][] newLevel = ScreenLayout.getInstance().layout;
     ArrayList<ArrayList<Integer>> levelReadFromFile = readFromFile("levels\\level_1");
+
     int[][] array = CommonUtil.arrayListToArray(levelReadFromFile);
+
     for (int i = ROW_SHIFT; i < array.length + ROW_SHIFT; i++) {
       for (int j = COL_SHIFT; j < array[0].length + COL_SHIFT; j++) {
         newLevel[i][j] = array[i - ROW_SHIFT][j - COL_SHIFT];

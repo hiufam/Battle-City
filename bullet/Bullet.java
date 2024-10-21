@@ -19,10 +19,15 @@ public class Bullet extends GameComponent {
   private int damage = 1;
   private Color color;
   private GameComponent source;
+  private GameComponentType targetType;
+  private GameComponentType[] ignoreType;
 
-  public Bullet(Vector2D position, int width, int height, Color color, GameComponent source) {
+  public Bullet(Vector2D position, int width, int height, Color color, GameComponent source,
+      GameComponentType targetType) {
     super(GameComponentType.BULLET, position, width, height);
     this.source = source;
+    this.targetType = targetType;
+    this.ignoreType = new GameComponentType[] { source.getType() };
 
     setCollision(new CollisionBox(this, new Vector2D(0, 0), 16, 16));
   }
@@ -51,29 +56,29 @@ public class Bullet extends GameComponent {
       destroy();
     }
 
-    ArrayList<GameComponent> collidedGameComponents = checkCollision(
-        GameComponentsManager.getBulletCollisionComponents(), deltaTime);
+    ArrayList<GameComponent> collidedGameComponents = checkCollision(GameComponentsManager.getCollisionComponents(type),
+        ignoreType, deltaTime);
 
     if (collidedGameComponents == null) {
       move(deltaTime);
     }
 
-    if (collidedGameComponents.size() > 0) {
+    if (collidedGameComponents != null && collidedGameComponents.size() > 0) {
       damageComponents(collidedGameComponents);
     }
   }
 
   public void move(double deltaTime) {
-    setPosition(getPosition().add(getVelocity().multiply(deltaTime)));
+    setPosition(position.add(velocity.multiply(deltaTime)));
 
-    if (getCollision() != null) {
-      getCollision().setPosition(getPosition());
+    if (collisionBox != null) {
+      collisionBox.setPosition(position);
     }
   }
 
   public void destroy() {
     hidden = true;
-    collisionBox.enabled = false;
+    collisionBox.setEnabled(false);
     setVelocity(new Vector2D(0, 0));
     setPosition(source.getCenter());
   }
@@ -94,6 +99,11 @@ public class Bullet extends GameComponent {
     this.hidden = hide;
   }
 
+  public void setCollision(CollisionBox collisionBox) {
+    collisionBox.setEnableFrontCollisionCheck(false);
+    this.collisionBox = collisionBox;
+  }
+
   private void damageComponents(ArrayList<GameComponent> collidedGameComponents) {
     for (int i = 0; i < collidedGameComponents.size(); i++) {
       GameComponent collidedGameComponent = collidedGameComponents.get(i);
@@ -108,6 +118,10 @@ public class Bullet extends GameComponent {
 
       if (collidedGameComponent instanceof DestructibleComponent) {
         ((DestructibleComponent) collidedGameComponent).hit(damage);
+      }
+
+      if (targetType != null && collidedGameComponent.getType() == targetType) {
+        collidedGameComponent.destroy();
       }
 
       if (i == collidedGameComponents.size() - 1) {

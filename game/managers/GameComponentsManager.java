@@ -2,12 +2,15 @@ package managers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import enums.GameComponentType;
 import classes.GameComponent;
 
 public class GameComponentsManager {
   private static ArrayList<GameComponent> gameComponents = new ArrayList<>();
+  private static HashMap<GameComponentType, ArrayList<GameComponent>> gameCollisionComponents = new HashMap<>();
   private static ArrayList<GameComponent> playerCollisionComponents = new ArrayList<>();
   private static ArrayList<GameComponent> bulletCollisionComponents = new ArrayList<>();
   private static ArrayList<GameComponent> enemyCollisionComponents = new ArrayList<>();
@@ -25,9 +28,14 @@ public class GameComponentsManager {
 
     for (Iterator<GameComponent> iterator = gameComponents.iterator(); iterator.hasNext();) {
       GameComponent value = iterator.next();
-      if (value == gameComponent) {
-        iterator.remove();
+      if (value != gameComponent) {
+        continue;
       }
+
+      if (value.getCollision() != null) {
+        value.setCollision(null);
+      }
+      iterator.remove();
     }
   }
 
@@ -41,11 +49,38 @@ public class GameComponentsManager {
     return gameComponents;
   }
 
-  public static GameComponent[] getGameComponent(GameComponentType type) {
-    return gameComponents
+  public static ArrayList<GameComponent> getGameComponent(GameComponentType type) {
+    return new ArrayList<>(Arrays.asList(gameComponents
         .stream()
         .filter(gameComponent -> gameComponent.getType().equals(type))
-        .toArray(GameComponent[]::new);
+        .toArray(GameComponent[]::new)));
+  }
+
+  /**
+   * Setting what type of GameComponent which the source GameComponent will
+   * collide with
+   * 
+   * @param sourceComponentType - a type of source GameComponent
+   * @param gameComponentTypes  - type of GameComponent that the source collide
+   *                            with
+   */
+  public static void setCollisionComponents(
+      GameComponentType sourceComponentType,
+      GameComponentType[] gameComponentTypes) {
+    for (GameComponentType gameComponentType : gameComponentTypes) {
+      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
+        if (gameCollisionComponents.get(sourceComponentType) == null) {
+          gameCollisionComponents.put(sourceComponentType, new ArrayList<GameComponent>());
+        }
+        if (gameComponent.getType() == gameComponentType) {
+          gameCollisionComponents.get(sourceComponentType).add(gameComponent);
+        }
+      }
+    }
+  }
+
+  public static ArrayList<GameComponent> getCollisionComponents(GameComponentType sourceComponentType) {
+    return gameCollisionComponents.get(sourceComponentType);
   }
 
   public static void setPlayerCollisionComponents(GameComponentType[] gameComponentTypes) {

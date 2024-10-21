@@ -1,5 +1,6 @@
 package layouts;
 
+import classes.GameComponent;
 import classes.GameLayout;
 import environments.BrickBlock;
 import environments.Edge;
@@ -55,14 +56,12 @@ public class ScreenLayout extends GameLayout {
     return instance;
   }
 
-  public void mapElements(int mapIndex, int[] position, int block_width, int block_height) {
+  public GameComponent mapElements(int mapIndex, int[] position, int block_width, int block_height) {
     switch (mapIndex) {
       case 1:
-        new BrickBlock(new Vector2D(position[0], position[1]), block_width, block_height);
-        break;
+        return new BrickBlock(new Vector2D(position[0], position[1]), block_width, block_height);
       case 2:
-        new SteelBlock(new Vector2D(position[0], position[1]), block_width, block_height);
-        break;
+        return new SteelBlock(new Vector2D(position[0], position[1]), block_width, block_height);
       case 3:
         break;
       case 4:
@@ -70,14 +69,12 @@ public class ScreenLayout extends GameLayout {
       case 5:
         break;
       case 6:
-        new PlayerSpawner(new Vector2D(position[0], position[1]), block_width, block_height);
-        break;
+        return new PlayerSpawner(new Vector2D(position[0], position[1]), block_width, block_height);
       case -1:
-        new Edge(new Vector2D(position[0], position[1]), block_width, block_height);
-        break;
-
+        return new Edge(new Vector2D(position[0], position[1]), block_width, block_height);
       default:
         break;
     }
+    return null;
   }
 }

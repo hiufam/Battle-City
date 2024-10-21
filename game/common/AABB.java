@@ -98,18 +98,18 @@ public class AABB {
     return minT;
   }
 
-  public Vector2D getOverlappingDirection(AABB other, double offsetX, double offsetY) {
+  public Vector2D getOverlappingOffsetDirection(AABB other, double offsetX, double offsetY) {
     Vector2D direction = this.center.minus(other.center).normalized();
     double newOffsetX = offsetX;
     double newOffsetY = offsetY;
 
     if (offsetX > offsetY) {
       newOffsetX = 0;
-      newOffsetY += 0.1;
+      newOffsetY += 0.01; // set to 0.1 cuz why not
     }
 
     if (offsetY > offsetX) {
-      newOffsetX += 0.1;
+      newOffsetX += 0.01;
       newOffsetY = 0;
     }
 

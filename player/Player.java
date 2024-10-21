@@ -12,11 +12,13 @@ import enums.GameComponentType;
 import managers.GameComponentsManager;
 
 public class Player extends GameComponent {
+  final public double DEFAULT_SPEED = 180;
+
   private Vector2D direction = new Vector2D(0, 0);
   private Vector2D prevDirection = new Vector2D(0, 0);
   private Bullet bullet;
-  private double speed = 180;
-  private double attackInterval = 0.25;
+  private double speed = DEFAULT_SPEED;
+  private double attackInterval = 1;
   private double attackIntervalTimer = 0;
 
   // NEED IMMEDIATE FIX
@@ -38,14 +40,13 @@ public class Player extends GameComponent {
   GameSprite moveLeftFrame2 = new GameSprite("images\\tank_player1_left_c0_t2.png");
   GameSprite[] moveLeftFrames = { moveLeftFrame1, moveLeftFrame2 };
 
-  public Player(Vector2D position, int width, int height) {
-    super(GameComponentType.PLAYER, position, width, height);
+  public Player(Vector2D position) {
+    super(GameComponentType.PLAYER, position, 32, 32);
 
-    this.bullet = new Bullet(getCenter(), 0, 0, Color.RED, this);
+    this.bullet = new Bullet(getCenter(), 0, 0, Color.RED, this, GameComponentType.ENEMY);
 
     setSprite(moveUpFrame1);
-    setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2)); // TO PRECISE THEREFORE SET IT TO
-                                                                                     // SMALLER
+    setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2));
   }
 
   public void draw(Graphics2D graphics2d) {
@@ -54,7 +55,18 @@ public class Player extends GameComponent {
 
   @Override
   public void update(double deltaTime) {
-    if (checkCollision(GameComponentsManager.getPlayerCollisionComponents(), deltaTime) == null) {
+
+    // Used for ice env only
+    // if (CollisionUtil.isCollisionBoxOverlapGameComponent(collisionBox) != null &&
+    // CollisionUtil.isCollisionBoxOverlapGameComponent(collisionBox).getType() ==
+    // GameComponentType.ICE) {
+    // if (!getDirection().isZero()) {
+    // prevDirection = getDirection();
+    // }
+    // setDirection(prevDirection);
+    // }
+
+    if (checkCollision(GameComponentsManager.getCollisionComponents(type), null, deltaTime) == null) {
       move(deltaTime);
     }
 
@@ -75,6 +87,8 @@ public class Player extends GameComponent {
   public void move(double deltaTime) {
     setVelocity(direction.multiply(speed));
     setPosition(getPosition().add(getVelocity().multiply(deltaTime)));
+
+    // System.out.println(velocity);
 
     if (!getDirection().isZero()) {
       prevDirection = getDirection();
@@ -104,8 +118,9 @@ public class Player extends GameComponent {
   public void shoot(Vector2D direction) {
     if (attackIntervalTimer < attackInterval) {
       return;
+    } else {
+      createBullet(direction);
     }
-    createBullet(direction);
 
     attackIntervalTimer = 0;
   }
