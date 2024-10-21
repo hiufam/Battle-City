@@ -105,7 +105,7 @@ public class AABB {
 
     if (offsetX > offsetY) {
       newOffsetX = 0;
-      newOffsetY += 0.01; // set to 0.1 cuz why not
+      newOffsetY += 0.01;
     }
 
     if (offsetY > offsetX) {

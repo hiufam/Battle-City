@@ -25,7 +25,7 @@ public class Enemy extends GameComponent {
   private double attackInterval = 0.25;
   private double attackIntervalTimer = 0;
 
-  private double randomDirectionInterval = CommonUtil.randomDouble(1, 2);
+  private double randomDirectionInterval = CommonUtil.randomDouble(0, 1);
   private double randomDirectionTimer = 0;
 
   private double randomAttackInterval = CommonUtil.randomInteger(4, 5);

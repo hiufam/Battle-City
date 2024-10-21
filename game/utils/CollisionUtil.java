@@ -203,16 +203,14 @@ public class CollisionUtil {
         MinkowskiDiff.max.x >= 0 &&
         MinkowskiDiff.min.y <= 0 &&
         MinkowskiDiff.max.y >= 0) {
+      checkStaticCollision(gameComponentA, gameComponentB, deltaTime);
+
       if (!gameComponentA.getVelocity().isZero()) {
         checkRigidCollision(gameComponentA, gameComponentB, deltaTime);
       }
 
       if (!gameComponentB.getVelocity().isZero()) {
         checkRigidCollision(gameComponentB, gameComponentA, deltaTime);
-      }
-
-      if (gameComponentB.getVelocity().isZero() && gameComponentA.getVelocity().isZero()) {
-        checkStaticCollision(gameComponentA, gameComponentB, deltaTime);
       }
 
       return true;
@@ -266,8 +264,6 @@ public class CollisionUtil {
       Vector2D offset = source.getVelocity().normalized().multiply(-1);
       source.setPosition(source.getPosition().add(offset));
     }
-
-    source.setVelocity(new Vector2D(0, 0));
 
     return hasCollision;
   }
