@@ -39,6 +39,10 @@ public abstract class GameComponent extends Component {
     GameComponentsManager.add(this);
   }
 
+  public GameComponent() {
+    GameComponentsManager.add(this);
+  }
+
   public void draw(Graphics2D graphics2d) {
   };
 
@@ -118,6 +122,55 @@ public abstract class GameComponent extends Component {
     }
 
     return this.getType() == gameComponent.getType();
+  }
+
+  public ArrayList<GameComponent> checkIntersection(
+      ArrayList<GameComponent> gameComponents,
+      GameComponentType[] ignoreGameComponentType,
+      double deltaTime) {
+    if (!getCollision().isEnabled()) {
+      return null;
+    }
+
+    ArrayList<GameComponent> intersectedGameComponents = new ArrayList<>();
+
+    for (GameComponent gameComponent : gameComponents) {
+      if (gameComponent.getCollision() == null ||
+          !gameComponent.getCollision().isEnabled() ||
+          gameComponent == this) {
+        continue;
+      }
+
+      if (ignoreGameComponentType != null && Arrays.asList(ignoreGameComponentType).contains(gameComponent.getType())) {
+        continue;
+      }
+
+      boolean hasIntersection = CollisionUtil.checkAABBIntersection(this, gameComponent, deltaTime);
+
+      if (hasIntersection) {
+        intersectedGameComponents.add(gameComponent);
+      }
+    }
+
+    if (intersectedGameComponents.size() > 0) {
+      return intersectedGameComponents;
+    }
+
+    return null;
+  }
+
+  public boolean checkIntersection(GameComponent gameComponent, double deltaTime) {
+    if (!getCollision().isEnabled()) {
+      return false;
+    }
+
+    if (gameComponent.getCollision() == null ||
+        !gameComponent.getCollision().isEnabled() ||
+        gameComponent == this) {
+      return false;
+    }
+
+    return CollisionUtil.checkAABBIntersection(this, gameComponent, deltaTime);
   }
 
   /**

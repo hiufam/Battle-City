@@ -25,7 +25,7 @@ public class Enemy extends GameComponent {
   private double attackInterval = 0.25;
   private double attackIntervalTimer = 0;
 
-  private double randomDirectionInterval = CommonUtil.randomDouble(0, 1);
+  private double randomDirectionInterval = CommonUtil.randomDouble(0.5, 1.5);
   private double randomDirectionTimer = 0;
 
   private double randomAttackInterval = CommonUtil.randomInteger(4, 5);
@@ -56,8 +56,10 @@ public class Enemy extends GameComponent {
     this.bullet = new Bullet(getCenter(), 0, 0, Color.RED, this, GameComponentType.PLAYER);
 
     setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2));
+    collisionBox.setEnableFrontCollisionCheck(true);
   }
 
+  @Override
   public void draw(Graphics2D graphics2d) {
     graphics2d.drawImage(sprite.getBufferedImage(), (int) x, (int) y, this);
   }

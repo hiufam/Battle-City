@@ -16,6 +16,7 @@ import managers.GameScreen;
 import classes.GameComponent;
 import utils.MovementUtil;
 import player.Player;
+import power_ups.PowerUpSpawner;
 
 public class GameManager extends GameLoop {
   GameScreen gameScreen;
@@ -45,7 +46,8 @@ public class GameManager extends GameLoop {
     new Enemy(new Vector2D(32 * 8, 16));
     new Enemy(new Vector2D(32 * 9, 16));
     new Enemy(new Vector2D(32 * 10, 16));
-    player = new Player(GameComponentsManager.getGameComponent(GameComponentType.PLAYER_SPAWNER).get(0).getPosition());
+    new PowerUpSpawner();
+    player = new Player(GameComponentsManager.getGameComponents(GameComponentType.PLAYER_SPAWNER).get(0).getPosition());
 
     GameComponentsManager.setCollisionComponents(GameComponentType.PLAYER,
         new GameComponentType[] {

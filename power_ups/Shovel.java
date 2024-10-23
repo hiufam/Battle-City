@@ -1,35 +1,73 @@
 package power_ups;
 
-import java.util.ArrayList;
+import java.awt.Color;
+import java.awt.Graphics2D;
 
-import classes.Environment;
 import classes.PowerUp;
 import common.Vector2D;
-import environments.BrickWall;
+import environments.BrickBlock;
+import environments.SteelBlock;
+import managers.GameComponentsManager;
 
 public class Shovel extends PowerUp {
-  ArrayList<BrickWall> brickWalls = new ArrayList<>();
+  private final Vector2D[] BASE_BRICKS_POSITIONS = {
+      new Vector2D(16 * 13, 16 * 24),
+      new Vector2D(16 * 14, 16 * 24),
+      new Vector2D(16 * 15, 16 * 24),
+      new Vector2D(16 * 16, 16 * 24),
+      new Vector2D(16 * 13, 16 * 25),
+      new Vector2D(16 * 16, 16 * 25),
+      new Vector2D(16 * 13, 16 * 26),
+      new Vector2D(16 * 16, 16 * 26),
+  };
 
-  public Shovel(boolean enabled, boolean visibility, int points, Vector2D position, float duration,
-      ArrayList<BrickWall> brickWalls) {
-    super(enabled, visibility, points, position, duration);
+  private BrickBlock[] baseBrickBlocks = new BrickBlock[BASE_BRICKS_POSITIONS.length];
 
-    this.brickWalls = brickWalls;
+  public Shovel() {
+    getBrickBlocks();
   }
 
-  public void setBrickWalls(ArrayList<BrickWall> brickWalls) {
-    this.brickWalls = brickWalls;
+  @Override
+  public void draw(Graphics2D graphics2d) {
+    if (visible && enabled) {
+      graphics2d.setColor(Color.BLUE);
+      graphics2d.fillRect((int) position.x, (int) position.y, 32, 32);
+    }
   }
 
-  public ArrayList<BrickWall> getBrickwalls() {
-    return this.brickWalls;
+  @Override
+  public void update(double deltaTime) {
+    if (visible && enabled) {
+      getBrickBlocks();
+    }
+
+    if (player != null && checkIntersection(player, deltaTime)) {
+      turnBrickIntoSteel();
+
+      visible = false;
+      enabled = false;
+      position = DEFAULT_POSITION;
+    }
   }
 
-  public void convertWall(Class<Environment> className) {
-    for (BrickWall brickWall : brickWalls) {
-      className.cast(brickWall);
+  private void getBrickBlocks() {
+    for (int i = 0; i < BASE_BRICKS_POSITIONS.length; i++) {
+      BrickBlock BrickBlock = (BrickBlock) GameComponentsManager.getGameComponent(BASE_BRICKS_POSITIONS[i]);
+      if (BrickBlock != null) {
+        baseBrickBlocks[i] = BrickBlock;
+      }
+    }
+  }
 
-      brickWalls.remove(brickWall);
+  private void turnBrickIntoSteel() {
+    for (BrickBlock brickBlock : baseBrickBlocks) {
+      if (brickBlock == null) {
+        continue;
+      }
+
+      if (GameComponentsManager.gameComponentExist(brickBlock)) {
+        GameComponentsManager.replaceGameComponent(brickBlock, new SteelBlock(brickBlock.getPosition(), 32, 32));
+      }
     }
   }
 }

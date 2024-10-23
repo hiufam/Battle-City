@@ -100,7 +100,6 @@ public class Bullet extends GameComponent {
   }
 
   public void setCollision(CollisionBox collisionBox) {
-    collisionBox.setEnableFrontCollisionCheck(false);
     this.collisionBox = collisionBox;
   }
 

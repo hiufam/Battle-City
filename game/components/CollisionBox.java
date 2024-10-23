@@ -17,7 +17,7 @@ public class CollisionBox {
   public GameComponent gameComponent;
 
   private boolean enabled = true;
-  private boolean enableFrontCollisionCheck = true;
+  private boolean enableFrontCollisionCheck = false;
   private boolean enableCollisionResponse = true;
 
   public CollisionBox(GameComponent gameComponent, Vector2D relativePosition, int width, int height) {

@@ -43,6 +43,12 @@ public class GameScreen extends JPanel {
     this.repaint();
   }
 
+  /**
+   * Get map of GameComponents in form of 1D array which as been transformed from
+   * 2D array
+   * 
+   * @return array of map components
+   */
   public static GameComponent[] getGameComponentMap() {
     return gameComponentMap;
   }

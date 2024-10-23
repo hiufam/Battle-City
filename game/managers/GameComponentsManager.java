@@ -6,14 +6,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import enums.GameComponentType;
+import utils.CommonUtil;
 import classes.GameComponent;
+import common.Vector2D;
 
 public class GameComponentsManager {
   private static ArrayList<GameComponent> gameComponents = new ArrayList<>();
   private static HashMap<GameComponentType, ArrayList<GameComponent>> gameCollisionComponents = new HashMap<>();
-  private static ArrayList<GameComponent> playerCollisionComponents = new ArrayList<>();
-  private static ArrayList<GameComponent> bulletCollisionComponents = new ArrayList<>();
-  private static ArrayList<GameComponent> enemyCollisionComponents = new ArrayList<>();
 
   public void GameComponent() {
   }
@@ -39,6 +38,24 @@ public class GameComponentsManager {
     }
   }
 
+  public static boolean gameComponentExist(GameComponent gameComponent) {
+    return gameComponents.indexOf(gameComponent) != -1;
+  }
+
+  public static void replaceGameComponent(GameComponent replacedComponent, GameComponent gameComponent) {
+    if (replacedComponent == null || gameComponent == null) {
+      return;
+    }
+
+    int replacedComponentIndex = gameComponents.indexOf(replacedComponent);
+
+    if (replacedComponentIndex == -1) {
+      return;
+    }
+
+    gameComponents.set(replacedComponentIndex, gameComponent);
+  }
+
   public static void add(GameComponent gameComponent) {
     if (gameComponent != null) {
       gameComponents.add(gameComponent);
@@ -49,11 +66,24 @@ public class GameComponentsManager {
     return gameComponents;
   }
 
-  public static ArrayList<GameComponent> getGameComponent(GameComponentType type) {
+  public static ArrayList<GameComponent> getGameComponents(GameComponentType type) {
     return new ArrayList<>(Arrays.asList(gameComponents
         .stream()
+        .filter(gameComponent -> gameComponent.getType() != null)
         .filter(gameComponent -> gameComponent.getType().equals(type))
         .toArray(GameComponent[]::new)));
+  }
+
+  public static GameComponent getGameComponent(Vector2D position) {
+    GameComponent[] gameComponentMap = GameScreen.getGameComponentMap();
+
+    if (gameComponentMap == null) {
+      return null;
+    }
+
+    GameComponent gameComponent = gameComponentMap[CommonUtil.getTileIndex(position)];
+
+    return gameComponent;
   }
 
   /**
@@ -67,11 +97,12 @@ public class GameComponentsManager {
   public static void setCollisionComponents(
       GameComponentType sourceComponentType,
       GameComponentType[] gameComponentTypes) {
+    if (gameCollisionComponents.get(sourceComponentType) == null) {
+      gameCollisionComponents.put(sourceComponentType, new ArrayList<GameComponent>());
+    }
+
     for (GameComponentType gameComponentType : gameComponentTypes) {
-      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
-        if (gameCollisionComponents.get(sourceComponentType) == null) {
-          gameCollisionComponents.put(sourceComponentType, new ArrayList<GameComponent>());
-        }
+      for (GameComponent gameComponent : gameComponents) {
         if (gameComponent.getType() == gameComponentType) {
           gameCollisionComponents.get(sourceComponentType).add(gameComponent);
         }
@@ -81,47 +112,5 @@ public class GameComponentsManager {
 
   public static ArrayList<GameComponent> getCollisionComponents(GameComponentType sourceComponentType) {
     return gameCollisionComponents.get(sourceComponentType);
-  }
-
-  public static void setPlayerCollisionComponents(GameComponentType[] gameComponentTypes) {
-    for (GameComponentType gameComponentType : gameComponentTypes) {
-      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
-        if (gameComponent.getType() == gameComponentType) {
-          playerCollisionComponents.add(gameComponent);
-        }
-      }
-    }
-  }
-
-  public static ArrayList<GameComponent> getPlayerCollisionComponents() {
-    return playerCollisionComponents;
-  }
-
-  public static void setBulletCollisionComponents(GameComponentType[] gameComponentTypes) {
-    for (GameComponentType gameComponentType : gameComponentTypes) {
-      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
-        if (gameComponent.getType() == gameComponentType) {
-          bulletCollisionComponents.add(gameComponent);
-        }
-      }
-    }
-  }
-
-  public static ArrayList<GameComponent> getBulletCollisionComponents() {
-    return bulletCollisionComponents;
-  }
-
-  public static void setEnemyCollisionComponents(GameComponentType[] gameComponentTypes) {
-    for (GameComponentType gameComponentType : gameComponentTypes) {
-      for (GameComponent gameComponent : GameComponentsManager.getGameComponents()) {
-        if (gameComponent.getType() == gameComponentType) {
-          enemyCollisionComponents.add(gameComponent);
-        }
-      }
-    }
-  }
-
-  public static ArrayList<GameComponent> getEnemyCollisionComponents() {
-    return enemyCollisionComponents;
   }
 }

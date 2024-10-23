@@ -1,45 +1,42 @@
 package classes;
 
 import common.Vector2D;
+import components.CollisionBox;
 import player.Player;
 
-public class PowerUp {
-  private boolean enabled = false;
-  private boolean visibility = false;
-  public int points = 500;
-  public Vector2D position;
-  public float duration;
-  private Player player;
+public class PowerUp extends GameComponent {
+  public final int points = 500;
 
-  public PowerUp(boolean enabled, boolean visibility, int points, Vector2D position, float duration) {
-    this.enabled = enabled;
-    this.visibility = visibility;
-    this.points = points;
-    this.position = position;
-    this.duration = duration;
+  protected static Player player = null;
+  protected boolean enabled = false;
+  protected boolean visible = false;
+
+  protected static final Vector2D DEFAULT_POSITION = new Vector2D(-360, -360);
+
+  public PowerUp() {
+    setPosition(DEFAULT_POSITION);
+    setCollision(new CollisionBox(this, new Vector2D(0, 0), 32, 32));
+
+    collisionBox.setEnableCollisionResponse(false);
   }
 
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  public void setEnabled(boolean enable) {
+    this.enabled = enable;
   }
 
-  public boolean getEnabled() {
+  public boolean isEnabled() {
     return enabled;
   }
 
-  public void setVisibility(boolean visibility) {
-    this.visibility = visibility;
+  public void setVisible(boolean visible) {
+    this.visible = visible;
   }
 
-  public boolean getVisibility() {
-    return this.visibility;
+  public boolean isVisible() {
+    return this.visible;
   }
 
-  public void onPickedUp(Player player) {
-    this.player = player;
-  }
-
-  public Player getPlayer() {
-    return this.player;
+  public static void setPlayer(Player newPlayer) {
+    player = newPlayer;
   }
 }

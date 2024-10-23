@@ -18,7 +18,7 @@ public class Player extends GameComponent {
   private Vector2D prevDirection = new Vector2D(0, 0);
   private Bullet bullet;
   private double speed = DEFAULT_SPEED;
-  private double attackInterval = 1;
+  private double attackInterval = 0.25;
   private double attackIntervalTimer = 0;
 
   // NEED IMMEDIATE FIX
@@ -47,6 +47,7 @@ public class Player extends GameComponent {
 
     setSprite(moveUpFrame1);
     setCollision(new CollisionBox(this, new Vector2D(1, 1), width - 2, height - 2));
+    collisionBox.setEnableFrontCollisionCheck(true);
   }
 
   public void draw(Graphics2D graphics2d) {

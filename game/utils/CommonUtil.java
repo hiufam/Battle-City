@@ -63,4 +63,21 @@ public class CommonUtil {
     Random random = new Random();
     return minValue + random.nextDouble(maxValue - minValue + 1);
   }
+
+  public static Vector2D randomPosition(double x, double y, double width, double height) {
+    double randomX = randomDouble(x, x + width);
+    double randomY = randomDouble(y, y + height);
+
+    return new Vector2D(randomX, randomY);
+  }
+
+  public static <T> boolean isArrayNotFull(T[] array) {
+    for (T item : array) {
+      if (item == null) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
